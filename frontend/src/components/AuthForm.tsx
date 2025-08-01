@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { login, register } from "../services/authService";
 
 interface AuthFormProps {
-  onLogin: (user: { id: string; name: string; email: string; lastLogin: string; status: string }) => void;
+  onLogin: (user: { id: string; name: string; email: string; status: string }) => void;
 }
 
 export const AuthForm = ({ onLogin }: AuthFormProps) => {
@@ -26,7 +26,6 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
           id: response.user.id,
           name: response.user.name,
           email: response.user.email,
-          lastLogin: response.user.lastLogin,
           status: response.user.status
         });
       } else {
@@ -35,7 +34,6 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
           id: response.user.id,
           name: response.user.name,
           email: response.user.email,
-          lastLogin: response.user.lastLogin,
           status: response.user.status
         });
       }
@@ -112,6 +110,7 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
             <Button
               type="submit" 
               disabled={loading}
+              onClick={handleSubmit}
             >
               {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
             </Button>
