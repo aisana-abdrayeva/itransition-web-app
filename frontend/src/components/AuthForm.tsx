@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { login, register } from "../services/authService";
 
 interface AuthFormProps {
-  onLogin: (user: { id: number; name: string; email: string; lastLogin: string; status: string }) => void;
+  onLogin: (user: { id: string; name: string; email: string; lastLogin: string; status: string }) => void;
 }
 
 export const AuthForm = ({ onLogin }: AuthFormProps) => {

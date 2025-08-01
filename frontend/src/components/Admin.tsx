@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Trash2, Unlock, Lock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Checkbox } from "./ui/checkbox";
+import { getUsers, blockUser, unblockUser, deleteUser } from "../services/userService";
 
 interface User {
   id: string;
@@ -18,56 +19,22 @@ interface AdminProps {
   onLogout: () => void;
 }
 
-// Mock data - you'll replace this with your backend data
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    lastLogin: "2024-01-15 14:30:25",
-    status: "active",
-    registrationTime: "2024-01-01 09:00:00"
-  },
-  {
-    id: "2", 
-    name: "Jane Smith",
-    email: "jane@example.com",
-    lastLogin: "2024-01-14 16:45:12",
-    status: "blocked",
-    registrationTime: "2024-01-02 10:15:00"
-  },
-  {
-    id: "3",
-    name: "Bob Johnson",
-    email: "bob@example.com", 
-    lastLogin: "2024-01-13 11:20:05",
-    status: "active",
-    registrationTime: "2024-01-03 14:30:00"
-  },
-  {
-    id: "4",
-    name: "Alice Brown",
-    email: "alice@example.com",
-    lastLogin: "2024-01-12 09:15:30",
-    status: "active",
-    registrationTime: "2024-01-04 16:45:00"
-  },
-  {
-    id: "5",
-    name: "Charlie Wilson",
-    email: "charlie@example.com",
-    lastLogin: "2024-01-11 13:25:15",
-    status: "blocked",
-    registrationTime: "2024-01-05 11:20:00"
-  }
-];
-
 export const Admin = ({ currentUser, onLogout }: AdminProps) => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
 
   const allSelected = selectedUsers.size === users.length && users.length > 0;
-  const someSelected = selectedUsers.size > 0;
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      const usersData = await getUsers();
+      setUsers(usersData);
+      setLoading(false);
+    };
+    fetchUsers();
+  }, []);
 
   const handleSelectAll = () => {
     if (allSelected) {
@@ -87,32 +54,53 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
     setSelectedUsers(newSelected);
   };
 
-  const handleBlock = () => {
+  const handleBlock = async () => {
     if (selectedUsers.size === 0) return;
     
-    setUsers(users.map(user => 
-      selectedUsers.has(user.id) ? { ...user, status: "blocked" as const } : user
-    ));
-    setSelectedUsers(new Set());
-    console.log(`${selectedUsers.size} user(s) have been blocked.`);
+    try {
+      const userId = selectedUsers.values().next().value;
+      if (!userId) return;
+      await blockUser(userId);
+      setUsers(users.map(user => 
+        selectedUsers.has(user.id) ? { ...user, status: "blocked" as const } : user
+      ));
+      setSelectedUsers(new Set());
+      console.log(`${selectedUsers.size} user(s) have been blocked.`);
+    } catch (error) {
+      console.error("Error blocking users:", error);
+    }
   };
 
-  const handleUnblock = () => {
+  const handleUnblock = async () => {
     if (selectedUsers.size === 0) return;
     
-    setUsers(users.map(user => 
-      selectedUsers.has(user.id) ? { ...user, status: "active" as const } : user
-    ));
-    setSelectedUsers(new Set());
-    console.log(`${selectedUsers.size} user(s) have been unblocked.`);
+    try {
+      const userId = selectedUsers.values().next().value;
+      if (!userId) return;
+      await unblockUser(userId);
+      setUsers(users.map(user => 
+        selectedUsers.has(user.id) ? { ...user, status: "active" as const } : user
+      ));
+      setSelectedUsers(new Set());
+      console.log(`${selectedUsers.size} user(s) have been unblocked.`);
+    } catch (error) {
+      console.error("Error unblocking users:", error);
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedUsers.size === 0) return;
     
-    setUsers(users.filter(user => !selectedUsers.has(user.id)));
-    setSelectedUsers(new Set());
-    console.log(`${selectedUsers.size} user(s) have been deleted.`);
+    try {
+      const userId = selectedUsers.values().next().value;
+      if (!userId) return;
+      await deleteUser(userId);
+      setUsers(users.filter(user => !selectedUsers.has(user.id)));
+      setSelectedUsers(new Set());
+      console.log(`${selectedUsers.size} user(s) have been deleted.`);
+    } catch (error) {
+      console.error("Error deleting users:", error);
+    }
   };
 
   const selectedCount = selectedUsers.size;
@@ -158,6 +146,7 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
             <Button 
               onClick={handleBlock}
               disabled={selectedCount === 0}
+              loading={loading}
             >
               <Lock className="w-4 h-4 mr-2" />
               Block
@@ -166,6 +155,7 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
             <Button
               onClick={handleUnblock}
               disabled={selectedCount === 0 || !hasBlockedUsers}
+              loading={loading}
             >
               <Unlock className="w-4 h-4" />
             </Button>
@@ -173,6 +163,7 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
             <Button
               onClick={handleDelete}
               disabled={selectedCount === 0}
+              loading={loading}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
