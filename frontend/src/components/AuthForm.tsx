@@ -23,20 +23,28 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
     try {
       if (isLogin) {
         const response = await login({ email, password });
-        onLogin({
-          id: response.user.id,
-          name: response.user.name,
-          email: response.user.email,
-          status: response.user.status
-        });
+        if (response.user && response.user.id) {
+          onLogin({
+            id: response.user.id,
+            name: response.user.name,
+            email: response.user.email,
+            status: response.user.status
+          });
+        } else {
+          console.error("Invalid response structure:", response);
+        }
       } else {
-      const response = await register({ name, email, password });
-        onLogin({
-          id: response.user.id,
-          name: response.user.name,
-          email: response.user.email,
-          status: response.user.status
-        });
+        const response = await register({ name, email, password });
+        if (response.user && response.user.id) {
+          onLogin({
+            id: response.user.id,
+            name: response.user.name,
+            email: response.user.email,
+            status: response.user.status
+          });
+        } else {
+          console.error("Invalid response structure:", response);
+        }
       }
     } catch (error) {
       console.error("Authentication error:", error);

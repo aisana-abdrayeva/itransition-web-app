@@ -36,7 +36,15 @@ router.post("/register", async (req: any, res: any) => {
 
   const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
 
-  res.status(201).json({ token });
+  res.status(201).json({ 
+    token,
+    user: {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      status: newUser.status
+    }
+  });
 });
 
 //  POST /api/auth/login
@@ -61,7 +69,15 @@ router.post("/login", async (req:any, res:any) => {
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
 
-  res.status(200).json({ token });
+  res.status(200).json({ 
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      status: user.status
+    }
+  });
 });
 
 module.exports = router;
