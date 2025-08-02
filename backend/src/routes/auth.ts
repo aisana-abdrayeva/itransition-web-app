@@ -12,6 +12,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 
 // Middleware to check if user is authenticated
 router.post("/register", async (req: any, res: any) => {
+  console.log("register")
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -25,6 +26,7 @@ router.post("/register", async (req: any, res: any) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
+  console.log("password done");
   const newUser = await prisma.user.create({
     data: {
       name,
@@ -34,8 +36,9 @@ router.post("/register", async (req: any, res: any) => {
     },
   });
 
-  const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
 
+  const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
+  console.log("token done");
   res.status(201).json({ 
     token,
     user: {

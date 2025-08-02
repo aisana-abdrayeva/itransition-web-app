@@ -13,12 +13,14 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   
 
   const handleSubmit = async (e: React.FormEvent) => {
     console.log("handleSubmit");
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
       if (isLogin) {
@@ -46,8 +48,15 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
           console.error("Invalid response structure:", response);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Authentication error:", error);
+      if (error.response?.status === 409) {
+        setError("User with this email already exists. Please login instead.");
+      } else if (error.response?.data?.error) {
+        setError(error.response.data.error);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -116,6 +125,12 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
               />
             </div>
 
+            {error && (
+              <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded">
+                {error}
+              </div>
+            )}
+            
             <Button
               type="submit" 
               disabled={loading}
