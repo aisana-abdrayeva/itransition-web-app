@@ -16,6 +16,7 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
   
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("handleSubmit");
     e.preventDefault();
     setLoading(true);
 
@@ -110,7 +111,6 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
             <Button
               type="submit" 
               disabled={loading}
-              onClick={handleSubmit}
             >
               {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
             </Button>

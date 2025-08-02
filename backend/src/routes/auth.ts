@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const { PrismaClient, UserStatus } = require('@prisma/client');
 const dotenv = require("dotenv");
 
-console.log("authRoutes loaded");
 dotenv.config();
 
 const router = express.Router();
