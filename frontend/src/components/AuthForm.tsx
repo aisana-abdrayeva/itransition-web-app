@@ -26,6 +26,8 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
       if (isLogin) {
         const response = await login({ email, password });
         if (response.user && response.user.id) {
+          // Store the token in localStorage
+          localStorage.setItem('token', response.token);
           onLogin({
             id: response.user.id,
             name: response.user.name,
@@ -38,6 +40,8 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
       } else {
         const response = await register({ name, email, password });
         if (response.user && response.user.id) {
+          // Store the token in localStorage
+          localStorage.setItem('token', response.token);
           onLogin({
             id: response.user.id,
             name: response.user.name,
