@@ -15,8 +15,7 @@ datasource db {
 
 enum UserStatus {
   ACTIVE
-  INACTIVE
-  BANNED
+  BLOCKED
 }
 
 model User {
