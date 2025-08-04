@@ -8,9 +8,7 @@ dotenv.config();
 
 const router = express.Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 
-// Middleware to check if user is authenticated
 router.post("/register", async (req: any, res: any) => {
   const { name, email, password } = req.body;
 
@@ -35,7 +33,13 @@ router.post("/register", async (req: any, res: any) => {
   });
 
 
-  const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  res.cookie("accessToken", token, {
+    httpOnly: true,
+    secure: true, 
+    sameSite: "Lax", 
+    maxAge: 60 * 60 * 1000 
+  });
   res.status(201).json({ 
     token,
     user: {
@@ -61,14 +65,18 @@ router.post("/login", async (req:any, res:any) => {
     return res.status(401).json({ error: "Invalid password" });
   }
 
-  // update lastLogin time
   await prisma.user.update({
     where: { id: user.id },
     data: { lastLogin: new Date() },
   });
 
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
-
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  res.cookie("accessToken", token, {
+    httpOnly: true,
+    secure: true, 
+    sameSite: "Lax", 
+    maxAge: 60 * 60 * 1000 
+  });
   res.status(200).json({ 
     token,
     user: {
