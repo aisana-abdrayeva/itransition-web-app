@@ -10,8 +10,7 @@ interface User {
   name: string;
   email: string;
   lastLogin: string;
-  status: "active" | "blocked";
-  registrationTime: string;
+  status: "ACTIVE" | "BLOCKED";
 }
 
 interface AdminProps {
@@ -62,7 +61,7 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
       if (!userId) return;
       await blockUser(userId);
       setUsers(users.map(user => 
-        selectedUsers.has(user.id) ? { ...user, status: "blocked" as const } : user
+        selectedUsers.has(user.id) ? { ...user, status: "BLOCKED" as const } : user
       ));
       setSelectedUsers(new Set());
       console.log(`${selectedUsers.size} user(s) have been blocked.`);
@@ -79,7 +78,7 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
       if (!userId) return;
       await unblockUser(userId);
       setUsers(users.map(user => 
-        selectedUsers.has(user.id) ? { ...user, status: "active" as const } : user
+        selectedUsers.has(user.id) ? { ...user, status: "ACTIVE" as const } : user
       ));
       setSelectedUsers(new Set());
       console.log(`${selectedUsers.size} user(s) have been unblocked.`);
@@ -106,7 +105,7 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
   const selectedCount = selectedUsers.size;
   const hasBlockedUsers = useMemo(() => 
     Array.from(selectedUsers).some(id => 
-      users.find(user => user.id === id)?.status === "blocked"
+      users.find(user => user.id === id)?.status === "BLOCKED"
     ), [selectedUsers, users]);
 
   return (
@@ -186,7 +185,6 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
                 <TableHead>Email</TableHead>
                 <TableHead>Last Login</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="hidden sm:table-cell">Registration</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -204,14 +202,11 @@ export const Admin = ({ currentUser, onLogout }: AdminProps) => {
                   <TableCell className="text-sm">{user.lastLogin}</TableCell>
                   <TableCell>
                     <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                        user.status === "active" 
+                        user.status === "ACTIVE" 
                         ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80" 
                         : "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80" }`}>
                       {user.status}
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                    {user.registrationTime}
                   </TableCell>
                 </TableRow>
               ))}

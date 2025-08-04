@@ -12,7 +12,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 
 // Middleware to check if user is authenticated
 router.post("/register", async (req: any, res: any) => {
-  console.log("register")
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -26,7 +25,6 @@ router.post("/register", async (req: any, res: any) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  console.log("password done");
   const newUser = await prisma.user.create({
     data: {
       name,
@@ -38,7 +36,6 @@ router.post("/register", async (req: any, res: any) => {
 
 
   const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
-  console.log("token done");
   res.status(201).json({ 
     token,
     user: {
@@ -55,13 +52,13 @@ router.post("/login", async (req:any, res:any) => {
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || user.status !== UserStatus.ACTIVE) {
-    return res.status(403).json({ error: "User not found or inactive" });
+  if (!user || user.status === UserStatus.BLOCKED) {
+    return res.status(403).json({ error: "User not found or blocked" });
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
-    return res.status(401).json({ error: "Invalid credentials" });
+    return res.status(401).json({ error: "Invalid password" });
   }
 
   // update lastLogin time

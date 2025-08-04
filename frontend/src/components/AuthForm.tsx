@@ -15,9 +15,7 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
-
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("handleSubmit");
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -26,7 +24,6 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
       if (isLogin) {
         const response = await login({ email, password });
         if (response.user && response.user.id) {
-          // Store the token in localStorage
           localStorage.setItem('token', response.token);
           onLogin({
             id: response.user.id,

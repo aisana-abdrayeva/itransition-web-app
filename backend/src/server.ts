@@ -9,9 +9,7 @@ dotenv.config();
 const app = express();
 app.use(cors(
     {
-        origin: process.env.NODE_ENV === 'production' 
-            ? "https://itransition-web-app-frontend.onrender.com"
-            : "http://localhost:5173",
+        origin: ["https://itransition-web-app-frontend.onrender.com"],
         credentials: true,
     }
 ));
