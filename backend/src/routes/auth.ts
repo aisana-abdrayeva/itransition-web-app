@@ -34,12 +34,14 @@ router.post("/register", async (req: any, res: any) => {
 
 
   const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: true, 
     sameSite: "Lax", 
     maxAge: 60 * 60 * 1000 
   });
+  
   res.status(201).json({ 
     token,
     user: {
@@ -71,12 +73,14 @@ router.post("/login", async (req:any, res:any) => {
   });
 
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: true, 
     sameSite: "Lax", 
     maxAge: 60 * 60 * 1000 
   });
+
   res.status(200).json({ 
     token,
     user: {
