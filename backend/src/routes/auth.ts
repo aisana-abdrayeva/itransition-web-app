@@ -8,7 +8,10 @@ dotenv.config();
 
 const router = express.Router();
 const prisma = new PrismaClient();
-
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
 router.post("/register", async (req: any, res: any) => {
   const { name, email, password } = req.body;
 
@@ -33,15 +36,13 @@ router.post("/register", async (req: any, res: any) => {
   });
 
 
-  const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
+  const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: true, 
     sameSite: "Lax", 
     maxAge: 60 * 60 * 1000 
   });
-  
   res.status(201).json({ 
     token,
     user: {
@@ -72,14 +73,7 @@ router.post("/login", async (req:any, res:any) => {
     data: { lastLogin: new Date() },
   });
 
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-  res.cookie("accessToken", token, {
-    httpOnly: true,
-    secure: true, 
-    sameSite: "Lax", 
-    maxAge: 60 * 60 * 1000 
-  });
+  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
 
   res.status(200).json({ 
     token,
