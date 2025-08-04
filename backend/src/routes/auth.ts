@@ -38,7 +38,7 @@ router.post("/register", async (req: any, res: any) => {
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: true, 
-    sameSite: "Lax", 
+    sameSite: "None", 
     maxAge: 60 * 60 * 1000 
   });
 
@@ -53,7 +53,6 @@ router.post("/register", async (req: any, res: any) => {
   });
 });
 
-//  POST /api/auth/login
 router.post("/login", async (req:any, res:any) => {
   const { email, password } = req.body;
 
@@ -73,11 +72,11 @@ router.post("/login", async (req:any, res:any) => {
   });
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
-  
+
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: true, 
-    sameSite: "Lax", 
+    sameSite: "None", 
     maxAge: 60 * 60 * 1000 
   });
 
