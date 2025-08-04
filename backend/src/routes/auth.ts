@@ -9,9 +9,7 @@ dotenv.config();
 const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not defined");
-}
+
 router.post("/register", async (req: any, res: any) => {
   const { name, email, password } = req.body;
 
