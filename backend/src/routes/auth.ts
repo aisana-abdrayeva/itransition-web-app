@@ -17,41 +17,50 @@ router.post("/register", async (req: any, res: any) => {
     return res.status(400).json({ error: "Missing fields" });
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return res.status(409).json({ error: "User already exists" });
-  }
-
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const newUser = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash,
-      status: UserStatus.ACTIVE,
-    },
-  });
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash,
+        status: UserStatus.ACTIVE,
+      },
+    });
 
-  const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: "1h" });
 
-  res.cookie("accessToken", token, {
-    httpOnly: true,
-    secure: true, 
-    sameSite: "None", 
-    maxAge: 60 * 60 * 1000 
-  });
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 60 * 60 * 1000
+    });
 
-  res.status(201).json({ 
-    token,
-    user: {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      status: newUser.status
+    res.status(201).json({
+      token,
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        status: newUser.status
+      }
+    });
+
+  } catch (error: any) {
+    if (
+      error.code === "P2002" &&
+      error.meta?.target?.includes("email")
+    ) {
+      return res.status(409).json({ error: "User with this email already exists" });
     }
-  });
+
+    console.error("Unexpected error during registration:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
+
 
 router.post("/login", async (req:any, res:any) => {
   const { email, password } = req.body;
